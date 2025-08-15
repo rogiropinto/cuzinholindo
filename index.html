@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+
+<style>
+  html, body {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: #333;
+    overflow: hidden;          /* impede barra de rolagem quando o NÃO foge */
+    position: relative;        /* referência para posicionar absoluto */
+    font-family: system-ui, Arial, sans-serif;
+  }
+  button {
+    position: absolute;        /* vamos controlar via top/left sempre em px */
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+</style>
+    
+
+</head>
+<body>
+
+    <h1>Vai dar o cuzinho hoje???</h1>
+
+
+<button id="sim" >SIM</button>
+<button id="nao" class="meuBotao">NÃO</button>
+
+<script>
+  const sim = document.getElementById('sim');
+  const nao = document.getElementById('nao');
+
+  const GAP = 24;        
+  const SAFE_DIST = 160; 
+  const MARGIN = 16;     
+
+
+  function centralizarSeparado() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const simW = sim.offsetWidth;
+    const naoW = nao.offsetWidth;
+    const btnH = sim.offsetHeight;
+
+    const totalW = simW + GAP + naoW;
+    const cx = vw / 2;
+    const cy = vh / 2;
+
+    const startX = cx - totalW / 2;
+    const y = cy - btnH / 2;
+
+    sim.style.left = `${startX}px`;
+    sim.style.top  = `${y}px`;
+
+    nao.style.left = `${startX + simW + GAP}px`;
+    nao.style.top  = `${y}px`;
+  }
+
+  function centerOf(el) {
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+
+
+  function moverNao() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const maxX = vw - nao.offsetWidth  - MARGIN;
+    const maxY = vh - nao.offsetHeight - MARGIN;
+    const minX = MARGIN;
+    const minY = MARGIN;
+
+    const simC = centerOf(sim);
+
+    let x, y, tries = 0;
+    while (tries < 80) {
+      x = Math.random() * (maxX - minX) + minX;
+      y = Math.random() * (maxY - minY) + minY;
+
+      const naoC = { x: x + nao.offsetWidth/2, y: y + nao.offsetHeight/2 };
+      const dx = naoC.x - simC.x;
+      const dy = naoC.y - simC.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist >= SAFE_DIST) break;
+      tries++;
+    }
+
+   
+    if (tries >= 80) {
+      x = (simC.x < vw/2) ? maxX : minX;
+      y = (simC.y < vh/2) ? maxY : minY;
+    }
+
+    nao.style.left = `${x}px`;
+    nao.style.top  = `${y}px`;
+  }
+
+
+  window.addEventListener('load', centralizarSeparado);
+  window.addEventListener('resize', centralizarSeparado);
+
+
+  nao.addEventListener('mouseenter', moverNao);
+  nao.addEventListener('click', moverNao);
+  nao.addEventListener('touchstart', (e) => { e.preventDefault(); moverNao(); }, { passive: false });
+
+  
+</script>
+
+
+</body>
+</html>
